@@ -1,0 +1,229 @@
+---
+title: "Exploring the BRFSS data"
+output: 
+  html_document: 
+    fig_height: 4
+    highlight: pygments
+    theme: spacelab
+---
+
+## Setup
+
+### Load packages
+
+```{r load-packages, message = FALSE}
+library(ggplot2)
+library(dplyr)
+```
+
+### Load data
+
+Make sure your data and R Markdown files are in the same directory. When loaded
+your data file will be called `brfss2013`. Delete this note when before you submit 
+your work. 
+
+```{r load-data}
+load("brfss2013.RData")
+```
+
+
+
+* * *
+
+## Part 1: Data
+
+### Data collection
+
+The BRFSS is an ongoing surveillance system designed to measure behavioral risk factors for the non-institutionalized adult population (people aged 18 and older) in the United States. It is a collaborative project between all of the states in the US and participating US territories and the Centers for Disease Control and Prevention (CDC). 
+
+The data collection for the BRFSS consists on monthly landline telephone and cellular telephone-based surveys, conducted by either state health departments themselves or by contractors. For this type of data collection method (telephone survey), a sample record is equivalent to one telephone number randomly selected for dialing: in 2013, fifty-one projects used a disproportionate stratified sample (DSS) design for their landline samples, while Guam and Puerto Rico used a simple random-sample design.
+
+The most commonly used DSS design in 2013's BRFSS landline telephone sampling, consisted on dividing telephone numbers in two groups (high-density and medium-density strata), which were then sampled separately. The criteria for determining whether a telephone number went into either of the groups, is the "number of listed household numbers in its hundred block, or set of 100 telephone numbers with the same area code, prefix, and first two digits of the suffix and all possible combinations of the last two digits." (Overview: BRFSS 2013, 2014)
+
+As for cellular telephone sampling, sampling frames are commercially available, and, by following specific protocols, can be used by the system. The 2013 BRFSS sampling frame is based on the Telecordia database of telephone exchanges and 1,000 banks, which are sorted by area code and exchange within a state. "BRFSS divides the frame of telephone numbers into n intervals of size K telephone numbers", and then, "from each interval draws one 10-digit telephone number at random". (Overview: BRFSS 2013, 2014)
+
+The sample design is built for a hypothetically single stratum per state. However, in order to provide adequate sample sizes for smaller geographically defined populations of interest, many states sample from sub-state regions strata in a disproportionarte fashion. This was the case for 48 states or territories in 2013's BRFSS. 
+
+After the data is collected, it is then transmitted to the CDC in order to be edited, processed, weighted, and analysed.
+
+### Generalizability and causality
+
+The previously mentioned data collection methods used for the BRFSS, pertain to the *observational study* category because phenomena of interest was observed without imposition of controlled conditions. Being such, the data is best **not** used for making causal conclusions on any pair of the variables included, but can be useful to show associations between them.
+
+The surveillance system results are widely generalizable, due to its data collection methodology and the fact that it is a nation-wide ongoing study.
+
+* * *
+
+## Part 2: Research questions
+
+#### Research quesion 1:
+
+* How does the reported average sleep hours a person gets in a 24-hour period relate to the number of days his or her mental health has not been good?
+  
+  **Variables involved**
+  * SLEPTIM1
+  * MENTHLTH
+  
+#### Research quesion 2:
+
+a. How does the number of days a person’s mental health has not been good over the 30 days pre-interview relates to whether he or she have ever been told to have a depressive disorder and having served on active duty in the United States Armed Forces?
+
+b. How does having ever served on active duty in the United States Armed Forces (VETERAN3) relates to the number of days a person’s mental health has not been good (MENTHLTH) over the 30 days pre-interview?
+  
+    **Variables involved**
+    * MENTHLTH
+    * ADDEPEV2
+    * VETERAN3
+
+#### Research quesion 3:
+    
+a. How does the average sleep hours a person gets in a 24-hour period (SLEPTIM1) relates to whether he or she have ever been told to have a depressive disorder (ADDEPEV2) and having served on active duty in the United States Armed Forces (VETERAN3)?
+
+b. How does having ever served on active duty in the United States Armed Forces (VETERAN3) relates to the average sleep hours a person gets in a 24-hour period (SLEPTIM1)?
+
+c. How does having ever served on active duty in the United States Armed Forces (VETERAN3) relates to whether he or she have ever been told to have a depressive disorder (ADDEPEV2)?
+  
+    **Variables involved**
+    * SLEPTIM1
+    * ADDEPEV2
+    * VETERAN3
+
+* * *
+
+## Part 3: Exploratory data analysis
+
+### Research quesion 1:
+### How does the reported average sleep hours a person gets in a 24-hour period relate to the number of days his or her mental health has not been good?
+
+#### Preparing the data:
+```{r}
+
+# Created a new dataframe 'sleptim1_vs_menthlth' by filtering out the 'NA' values and selecting the variables 
+# 'sleptim1' and 'menthlth' from the original dataframe.
+sleptim1_vs_menthlth <- brfss2013 %>%
+  select(sleptim1, menthlth) %>%
+  filter(!is.na(sleptim1)) %>%
+  filter(!is.na(menthlth)) %>%
+  filter(sleptim1 %in% c(0:24)) %>%
+  filter(menthlth %in% c(0:30))
+
+# Created a new dataframe 'sleptim1_filt' by selecting the variable 'sleptim1' and filtering out the 'NA' values.
+sleptim1_filt <- brfss2013 %>% 
+  filter(!is.na(sleptim1)) %>% 
+  select(sleptim1)
+
+# Created a new dataframe 'menthlth_filt' by selecting the variable 'menthlth' and filtering out the 'NA' values.
+menthlth_filt <- brfss2013 %>% 
+  filter(!is.na(menthlth)) %>% 
+  select(menthlth)
+
+# Created a new dataframe 'sleptim1_distr' which will be useful to visualize the frequency distribution of the  
+# respondants' time spent sleeping in a 24 hour interval and filtering out the 'NA' values as well as the 
+# outlier values which correspond to 'Don't know/Not Sure' and 'Refused' values.
+sleptim1_distr <- brfss2013 %>% 
+  filter(!is.na(sleptim1)) %>% 
+  filter(sleptim1 %in% c(0:24)) %>% 
+  group_by(sleptim1) %>% 
+  summarise(count = n())
+
+# Created a new dataframe 'menthlth_distr' which will be useful to visualize the frequency distribution of the 
+# respondants' number of days in which he or she has been "not good" regarding mental health in the 30 days  
+# previous to the interview and filtering out the 'NA' values as well as the outlier values which correspond to  
+# 'Don't know/Not Sure' and 'Refused' values.
+menthlth_distr <- brfss2013 %>% 
+  filter(!is.na(menthlth)) %>% 
+  filter(menthlth %in% c(0:30)) %>% 
+  group_by(menthlth) %>% 
+  summarise(count = n())
+
+```
+
+To explore the suggested relationships between the 'sleptim1' and 'menthlth' variables, and the variables' observations themselves, we proceed to graph.
+
+### Plots
+#### Histogram: Frequency distribution - SLEPTIM1
+```{r}
+ggplot(sleptim1_distr, aes(x = sleptim1, y = count)) + geom_bar(fill = "#0073C2FF", stat = "identity")
+```
+
+#### Histogram: Frequency distribution - MENTHLTH
+```{r}
+ggplot(menthlth_distr, aes(x = menthlth, y = count)) + geom_bar(fill = "#0073C2FF", stat = "identity")
+```
+
+#### Scatterplot: SLEPTIM1 vs. MENTHLTH
+```{r}
+ggplot(sleptim1_vs_menthlth, aes(x = sleptim1, y = menthlth)) + geom_point(shape = 23) + xlim(0, 24) + ylim(0, 30)
+```
+
+### Research quesion 2:
+### a. How does the number of days a person’s mental health has not been good over the 30 days pre-interview relates to whether he or she has ever been told to have a depressive disorder and having served on active duty in the United States Armed Forces?
+
+#### Preparing the data:
+```{r}
+
+# Created a new dataframe 'addepev2_distr' which will be useful for visualizing the frequency distribution of the 
+# respondants' answers to whether they have ever been told by a health professional that they have had a depressive
+# disorder and filtered out the 'NA' values.
+addepev2_distr <- brfss2013 %>% 
+  group_by(addepev2) %>%
+  summarise(count = n()) %>%
+  filter(!is.na(addepev2))
+
+# Created a new dataframe 'veteran3_distr' which will be useful for visualizing the frequency distribution of the 
+# respondants' answers to whether they have ever served on active duty in the United States Armed Forces.
+veteran3_distr <- brfss2013 %>%
+  group_by(veteran3) %>%
+  summarise(count = n()) %>%
+  filter(!is.na(veteran3))
+
+# Created a new dataframe 'veteran3_vs_addepev2' which will be useful for visualizing the frequency 
+# distribution of all of the possible combinations between the not-null responses for 
+# 'veteran' and 'addepev2'.
+veteran3_vs_addepev2 <- brfss2013 %>%
+  select(veteran3, addepev2) %>% 
+  filter(!is.na(veteran3)) %>% 
+  filter(!is.na(addepev2))
+
+# Proceeded to create a variable with four possible values for the aforementioned combinations. 
+veteran3_vs_addepev2 <- veteran3_vs_addepev2 %>% 
+mutate(comb = ifelse(veteran3 == "No" & addepev2 == "No", "No/No", ifelse(veteran3 == "Yes" & addepev2 == "Yes", "Yes/Yes", ifelse(veteran3 == "Yes" & addepev2 == "No", "Yes/No", ifelse(veteran3 == "No" & addepev2 == "Yes", "No/Yes", 0)))))
+
+# Created a dataframe 'veteran3_vs_addepev2' in order to count the occurrence of the combinations.
+# We filter the "No/No" combinations because we are only interested in whether at least one of the 
+# variables is positive.
+veteran3_vs_addepev2_distr <- veteran3_vs_addepev2 %>%
+  group_by(comb) %>%
+  summarise(count = n()) %>% 
+  filter(comb != "No/No")
+
+```
+
+
+### Plots
+#### Histogram: Frequency distribution - ADDEPEV2
+```{r}
+ggplot(addepev2_distr, aes(x = addepev2, y = count)) + geom_bar(fill = "#0073C2FF", stat = "identity")
+```
+
+#### Histogram: Frequency distribution - VETERAN3
+```{r}
+ggplot(veteran3_distr, aes(x = veteran3, y = count)) + geom_bar(fill = "#0073C2FF", stat = "identity")
+```
+
+#### Frequency distribution for combination: VETERAN3 and ADDEPEV2
+```{r}
+ggplot(veteran3_vs_addepev2_distr, aes(x = comb, y = count)) + 
+  geom_bar(fill = "#0073C2FF", stat = "identity") + 
+  xlab("Veteran/Depressive Disorder")
+```
+
+### b. How does having ever served on active duty in the United States Armed Forces (VETERAN3) relates to the number of days a person’s mental health has not been good (MENTHLTH) over the 30 days pre-interview?
+
+**Research quesion 3:**
+
+## References
+
+* Diez, D., Barr, C., & Çetinkaya-Rundel, M. (2014). Introductory Statistics with Randomization and Simulation. Minneapolis, MN: Open Textbook Library.
+* United States of America, Centers for Disease Control and Prevention. (2014, August 15). Overview: BRFSS 2013. Retrieved July 30, 2020, from https://www.cdc.gov/brfss/annual_data/2013/pdf/Overview_2013.pdf
+* United States of America, Centers for Disease Control and Prevention. (2014, October 24). 2013 Codebook Report, Land-Line and Cell-Phone Data. Retrieved July 30, 2020, from https://www.cdc.gov/brfss/annual_data/2013/pdf/CODEBOOK13_LLCP.pdf
