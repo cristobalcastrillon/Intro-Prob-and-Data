@@ -66,7 +66,7 @@ The surveillance system results are widely generalizable, due to its data collec
   
 #### Research quesion 2:
 
-a. How does the number of days a person’s mental health has not been good over the 30 days pre-interview relates to whether he or she have ever been told to have a depressive disorder and having served on active duty in the United States Armed Forces?
+a. How does the number of days that a person’s mental health has not been good over the 30 days pre-interview relates to whether he or she have ever been told to have a depressive disorder and to whether he or she have served on active duty in the United States Armed Forces?
 
 b. How does having ever served on active duty in the United States Armed Forces (VETERAN3) relates to the number of days a person’s mental health has not been good (MENTHLTH) over the 30 days pre-interview?
   
@@ -153,11 +153,23 @@ ggplot(menthlth_distr, aes(x = menthlth, y = count)) + geom_bar(fill = "#0073C2F
 
 #### Scatterplot: SLEPTIM1 vs. MENTHLTH
 ```{r}
-ggplot(sleptim1_vs_menthlth, aes(x = sleptim1, y = menthlth)) + geom_point(shape = 23) + xlim(0, 24) + ylim(0, 30)
+ggplot(sleptim1_vs_menthlth, aes(x = sleptim1, y = menthlth)) + 
+  geom_point(shape = 23, size = 2) + 
+  xlim(0, 24) + ylim(0, 30)
+```
+
+#### Superimposed Density plot - SLEPTIM1 and MENTHLTH
+```{r}
+plot(density(sleptim1_vs_menthlth$sleptim1), ylim = c(0, 2.7))
+lines(density(sleptim1_vs_menthlth$menthlth), col = "red")
+segments(10,2,12.5,2, col = "black")
+text(12.5,2, pos = 4, labels = "Sleep time")
+segments(10,1.5,12.5,1.5, col = "red")
+text(12.5,1.5, pos = 4, labels = "Mental Health")
 ```
 
 ### Research quesion 2:
-### a. How does the number of days a person’s mental health has not been good over the 30 days pre-interview relates to whether he or she has ever been told to have a depressive disorder and having served on active duty in the United States Armed Forces?
+### a. How does the number of days that a person’s mental health has not been good over the 30 days pre-interview relates to whether he or she have ever been told to have a depressive disorder and to whether he or she have served on active duty in the United States Armed Forces?
 
 #### Preparing the data:
 ```{r}
@@ -187,10 +199,14 @@ veteran3_vs_addepev2 <- brfss2013 %>%
 
 # Proceeded to create a variable with four possible values for the aforementioned combinations. 
 veteran3_vs_addepev2 <- veteran3_vs_addepev2 %>% 
-mutate(comb = ifelse(veteran3 == "No" & addepev2 == "No", "No/No", ifelse(veteran3 == "Yes" & addepev2 == "Yes", "Yes/Yes", ifelse(veteran3 == "Yes" & addepev2 == "No", "Yes/No", ifelse(veteran3 == "No" & addepev2 == "Yes", "No/Yes", 0)))))
+mutate(comb = 
+        ifelse(veteran3 == "No" & addepev2 == "No", "No/No", 
+          ifelse(veteran3 == "Yes" & addepev2 == "Yes", "Yes/Yes",
+            ifelse(veteran3 == "Yes" & addepev2 == "No", "Yes/No", 
+              ifelse(veteran3 == "No" & addepev2 == "Yes", "No/Yes", 0)))))
 
 # Created a dataframe 'veteran3_vs_addepev2' in order to count the occurrence of the combinations.
-# We filter the "No/No" combinations because we are only interested in whether at least one of the 
+# We filter the "No/No" combinations because we are only interested in the instances when at least one of the 
 # variables is positive.
 veteran3_vs_addepev2_distr <- veteran3_vs_addepev2 %>%
   group_by(comb) %>%
