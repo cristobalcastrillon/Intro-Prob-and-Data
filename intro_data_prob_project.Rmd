@@ -66,9 +66,9 @@ The surveillance system results are widely generalizable, due to its data collec
   
 #### Research quesion 2:
 
-a. How does the number of days that a person’s mental health has not been good over the 30 days pre-interview relates to whether he or she have ever been told to have a depressive disorder and to whether he or she have served on active duty in the United States Armed Forces?
+a. How does the number of days that a person’s mental health has not been good over the 30 days pre-interview relate to whether he or she have ever been told to have a depressive disorder and to whether he or she have served on active duty in the United States Armed Forces?
 
-b. How does having ever served on active duty in the United States Armed Forces (VETERAN3) relates to the number of days a person’s mental health has not been good (MENTHLTH) over the 30 days pre-interview?
+b. How does having ever served on active duty in the United States Armed Forces relate to the number of days a person’s mental health has not been good over the 30 days pre-interview?
   
     **Variables involved**
     * MENTHLTH
@@ -77,11 +77,7 @@ b. How does having ever served on active duty in the United States Armed Forces 
 
 #### Research quesion 3:
     
-a. How does the average sleep hours a person gets in a 24-hour period (SLEPTIM1) relates to whether he or she have ever been told to have a depressive disorder (ADDEPEV2) and having served on active duty in the United States Armed Forces (VETERAN3)?
-
-b. How does having ever served on active duty in the United States Armed Forces (VETERAN3) relates to the average sleep hours a person gets in a 24-hour period (SLEPTIM1)?
-
-c. How does having ever served on active duty in the United States Armed Forces (VETERAN3) relates to whether he or she have ever been told to have a depressive disorder (ADDEPEV2)?
+* How does the average sleep hours a person gets in a 24-hour period relate to whether he or she have ever been told to have a depressive disorder and having served on active duty in the United States Armed Forces?
   
     **Variables involved**
     * SLEPTIM1
@@ -97,7 +93,6 @@ c. How does having ever served on active duty in the United States Armed Forces 
 
 #### Preparing the data:
 ```{r}
-
 # Created a new dataframe 'sleptim1_vs_menthlth' by filtering out the 'NA' values and selecting the variables 
 # 'sleptim1' and 'menthlth' from the original dataframe.
 sleptim1_vs_menthlth <- brfss2013 %>%
@@ -135,32 +130,38 @@ menthlth_distr <- brfss2013 %>%
   filter(menthlth %in% c(0:30)) %>% 
   group_by(menthlth) %>% 
   summarise(count = n())
-
 ```
 
 To explore the suggested relationships between the 'sleptim1' and 'menthlth' variables, and the variables' observations themselves, we proceed to graph.
 
 ### Plots
-#### Histogram: Frequency distribution - SLEPTIM1
+#### Histogram: Frequency distribution - Sleep Time.
 ```{r}
-ggplot(sleptim1_distr, aes(x = sleptim1, y = count)) + geom_bar(fill = "#0073C2FF", stat = "identity")
+ggplot(sleptim1_distr, aes(x = sleptim1, y = count)) + geom_bar(fill = "#0073C2FF", stat = "identity") + 
+  xlab("Sleep time [hours]")
 ```
 
-#### Histogram: Frequency distribution - MENTHLTH
+#### Histogram: Frequency distribution - Mental Health.
 ```{r}
-ggplot(menthlth_distr, aes(x = menthlth, y = count)) + geom_bar(fill = "#0073C2FF", stat = "identity")
+ggplot(menthlth_distr, aes(x = menthlth, y = count)) + geom_bar(fill = "#0073C2FF", stat = "identity") + 
+  xlab("Mental health 'not good' [days]")
 ```
 
-#### Scatterplot: SLEPTIM1 vs. MENTHLTH
+#### Scatterplot: Sleep Time vs. Mental Health
 ```{r}
 ggplot(sleptim1_vs_menthlth, aes(x = sleptim1, y = menthlth)) + 
   geom_point(shape = 23, size = 2) + 
-  xlim(0, 24) + ylim(0, 30)
+  xlim(0, 24) + ylim(0, 30) + 
+  xlab("Sleep time [hours]") + ylab("Mental health 'not good' [days]")
+```
+```{r}
+# We compute the correlation between these two variables...
+cor(sleptim1_vs_menthlth$sleptim1, sleptim1_vs_menthlth$menthlth)
 ```
 
-#### Superimposed Density plot - SLEPTIM1 and MENTHLTH
+#### Superimposed Density plot - Sleeptime and Mental Health.
 ```{r}
-plot(density(sleptim1_vs_menthlth$sleptim1), ylim = c(0, 2.7))
+plot(density(sleptim1_vs_menthlth$sleptim1), ylim = c(0, 2.7), main = "Sleeptime and Mental Health Density")
 lines(density(sleptim1_vs_menthlth$menthlth), col = "red")
 segments(10,2,12.5,2, col = "black")
 text(12.5,2, pos = 4, labels = "Sleep time")
@@ -169,11 +170,10 @@ text(12.5,1.5, pos = 4, labels = "Mental Health")
 ```
 
 ### Research quesion 2:
-### a. How does the number of days that a person’s mental health has not been good over the 30 days pre-interview relates to whether he or she have ever been told to have a depressive disorder and to whether he or she have served on active duty in the United States Armed Forces?
+### a. How does the number of days that a person’s mental health has not been good over the 30 days pre-interview relate to whether he or she have ever been told to have a depressive disorder and to whether he or she have served on active duty in the United States Armed Forces?
 
 #### Preparing the data:
 ```{r}
-
 # Created a new dataframe 'addepev2_distr' which will be useful for visualizing the frequency distribution of the 
 # respondants' answers to whether they have ever been told by a health professional that they have had a depressive
 # disorder and filtered out the 'NA' values.
@@ -212,31 +212,84 @@ veteran3_vs_addepev2_distr <- veteran3_vs_addepev2 %>%
   group_by(comb) %>%
   summarise(count = n()) %>% 
   filter(comb != "No/No")
-
 ```
 
 
 ### Plots
-#### Histogram: Frequency distribution - ADDEPEV2
+#### Histogram: Frequency distribution - Have ever been told by a health professional to have had a Depressive Disorder.
 ```{r}
-ggplot(addepev2_distr, aes(x = addepev2, y = count)) + geom_bar(fill = "#0073C2FF", stat = "identity")
+ggplot(addepev2_distr, aes(x = addepev2, y = count)) + geom_bar(fill = "#0073C2FF", stat = "identity") + 
+  xlab("Depressive disorder")
 ```
 
-#### Histogram: Frequency distribution - VETERAN3
+#### Histogram: Frequency distribution - Veteran
 ```{r}
-ggplot(veteran3_distr, aes(x = veteran3, y = count)) + geom_bar(fill = "#0073C2FF", stat = "identity")
+ggplot(veteran3_distr, aes(x = veteran3, y = count)) + geom_bar(fill = "#0073C2FF", stat = "identity") + 
+  xlab("Served in the USAF")
 ```
 
-#### Frequency distribution for combination: VETERAN3 and ADDEPEV2
+#### Frequency distribution for combination: Veteran and Depressive Disorder
 ```{r}
 ggplot(veteran3_vs_addepev2_distr, aes(x = comb, y = count)) + 
   geom_bar(fill = "#0073C2FF", stat = "identity") + 
-  xlab("Veteran/Depressive Disorder")
+  xlab("Veteran/Depressive disorder")
 ```
 
-### b. How does having ever served on active duty in the United States Armed Forces (VETERAN3) relates to the number of days a person’s mental health has not been good (MENTHLTH) over the 30 days pre-interview?
+### b. How does having ever served on active duty in the United States Armed Forces relate to the number of days a person’s mental health has not been good over the 30 days pre-interview?
+#### Preparing the data
+```{r}
+# Created a new dataframe 'vet3_menth_distr' which will be useful to visualize the distribution
+# of the number of days respondants who have served in the US Armed Forces 
+# have not been good (regarding mental health).
+vet3_menth_distr <- brfss2013 %>% 
+  group_by(menthlth) %>% 
+  summarise(count = n()) %>% 
+  filter(menthlth<=30)
+```
 
-**Research quesion 3:**
+### Plots
+#### Histogram: Frequency distribution of Mental Health of Veterans.
+```{r}
+ggplot(vet3_menth_distr, aes(x = menthlth, y = count)) + 
+  geom_bar(fill = "#0073C2FF", stat = "identity") + 
+  xlab("Veterans' number of days Mental Health has been 'not good'")
+```
+
+### Research quesion 3:
+### How does the average sleep hours a person gets in a 24-hour period relate to whether he or she have ever been told to have a depressive disorder and having served on active duty in the United States Armed Forces?
+
+```{r}
+# Created a new dataframe 'sleptim1_vet3' in order to visualize the distribution of the sleep time of 
+# respondants who said to be veterans.
+sleptim1_vet3 <- brfss2013 %>% 
+  filter(veteran3 == "Yes") %>% 
+  group_by(sleptim1) %>% 
+  summarise(count = n()) %>% 
+  filter(sleptim1 <= 24)
+
+# Created a new dataframe 'sleptim1_addepev2' in order to visualize the distribution of the sleep time of 
+# respondants who said to have ever been told by a health professional to have had a depressive disorder
+sleptim1_addepev2 <- brfss2013 %>% 
+  filter(addepev2 == "Yes") %>% 
+  group_by(sleptim1) %>% 
+  summarise(count = n()) %>% 
+  filter(sleptim1 <= 24)
+```
+
+### Plots
+#### Histogram: Frequency distribution of the sleep time of veterans.
+```{r}
+ggplot(sleptim1_vet3, aes(x = sleptim1, y = count)) + 
+  geom_bar(fill = "#0073C2FF", stat = "identity") + 
+  xlab("Sleep time of veterans [hours]")
+```
+
+#### Histogram: Frequency distribution of the sleep time of people who have ever suffered from a depressive disorder.
+```{r}
+ggplot(sleptim1_addepev2, aes(x = sleptim1, y = count)) + 
+  geom_bar(fill = "#0073C2FF", stat = "identity") + 
+  xlab("Sleep time of people who have ever suffered from a depressive disorder [hours]")
+```
 
 ## References
 
