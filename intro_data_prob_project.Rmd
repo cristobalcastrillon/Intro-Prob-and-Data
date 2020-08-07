@@ -6,11 +6,13 @@ output:
     highlight: pygments
     theme: spacelab
 ---
+## BRFSS 2013: Exploratory Data Analysis
 
-## Setup
+### Setup
 
 ### Load packages
 
+These packages are used for the project:
 ```{r load-packages, message = FALSE}
 library(ggplot2)
 library(dplyr)
@@ -18,15 +20,9 @@ library(dplyr)
 
 ### Load data
 
-Make sure your data and R Markdown files are in the same directory. When loaded
-your data file will be called `brfss2013`. Delete this note when before you submit 
-your work. 
-
 ```{r load-data}
 load("brfss2013.RData")
 ```
-
-
 
 * * *
 
@@ -49,35 +45,33 @@ After the data is collected, it is then transmitted to the CDC in order to be ed
 
 ### Generalizability and causality
 
-The previously mentioned data collection methods used for the BRFSS, pertain to the *observational study* category because phenomena of interest was observed without imposition of controlled conditions. Being such, the data is best **not** used for making causal conclusions on any pair of the variables included, but can be useful to show associations between them.
+The previously mentioned data collection methods used for the BRFSS, pertain to the *observational study* category because phenomena of interest was observed without imposition of controlled conditions. Being such, the data is best **not** used for making **causal** conclusions on any pair of the variables included, but can be useful to show associations between them.
 
-The surveillance system results are widely generalizable, due to its data collection methodology and the fact that it is a nation-wide ongoing study.
+The surveillance system results are widely **generalizable**, due to its data collection methodology and the fact that it is a nation-wide ongoing study.
 
 * * *
 
 ## II. Research questions
 
-#### 1. How does the reported average sleep hours a person gets in a 24-hour period relate to the number of days his or her mental health has not been good?
+#### 1. a. How does the reported average sleep hours a person gets in a 24-hour period relate to the number of days his or her mental health has not been good?
 
-    Variables involved
-    * SLEPTIM1
-    * MENTHLTH
+#### 1. b. How does the average sleep hours a person gets in a 24-hour period relate to whether he or she have ever been told to have a depressive disorder?
 
-#### 2.a. How does the number of days that a person’s mental health has not been good over the 30 days pre-interview relate to whether he or she have ever been told to have a depressive disorder; and to whether he or she have served on active duty in the United States Armed Forces?
+**Background:** Some studies suggest a close relationship between sleep disorders and mental health problems: sleep deprivation affects psychological well-being, and people who suffer from mental health problems are more likely to suffer from sleep disorders. (Harvard Health Publishing, 2019)
+
+#### 2.a. How does the number of days that a person’s mental health has not been good over the 30 days pre-interview relate to whether he or she have ever been told to have a depressive disorder?
 
 #### 2.b. How does having ever served on active duty in the United States Armed Forces relate to the number of days a person’s mental health has not been good over the 30 days pre-interview?
-  
-    Variables involved
-    * MENTHLTH
-    * ADDEPEV2
-    * VETERAN3
 
-#### 3. How does the average sleep hours a person gets in a 24-hour period relate to whether he or she have ever been told to have a depressive disorder; and to whether he or she has served on active duty in the United States Armed Forces?
-  
-    Variables involved
-    * SLEPTIM1
-    * ADDEPEV2
-    * VETERAN3
+**Background:** We are interested in the prevalence of depressive disorders (or non-optimal psychological well-being) in the group of people that have been diagnosed at least once in their lives with any depressive disorder.
+
+Also, we want to establish a relationship between the people that have served on active duty in the United States Armed Forces (i.e. veterans) and mental illness prevalence. It has been documented that nearly 1 in 4 active duty members have shown signs of a mental health condition, including Postraumatic Stress Disorder (PTSD), Depression, and Traumatic Brain Injury (TBI). (NAMI)
+
+#### 3. How does having ever served on active duty in the United States Armed Forces relate to the average sleep hours a person gets in a 24-hour period?
+
+**Background:** There is evidence about the prevalence of sleep disorders (most commonly chronic insomnia and nightmares) in those who suffer from PTSD. (Gehrman, 2015) 
+
+We want to test out this existing relationship by establishing a correlation between veterans that have been diagnosed with a depressive disorder at least once in their lifetime and the number of sleep hours that they get in a 24-hour basis.
 
 * * *
 
@@ -470,6 +464,9 @@ median(sleptim1_addepev2$sleptim1)
 ## References
 
 * Diez, D., Barr, C., & Çetinkaya-Rundel, M. (2014). Introductory Statistics with Randomization and Simulation. Minneapolis, MN: Open Textbook Library.
+* Gehrman, P., PhD. (2015, July 20). VA.gov: Veterans Affairs. Retrieved August 06, 2020, from https://www.ptsd.va.gov/professional/treat/cooccurring/sleep_problems_vets.asp
+* Harvard Health Publishing (Ed.). (2019, July). Sleep and mental health. Retrieved August 06, 2020, from https://www.health.harvard.edu/newsletter_article/sleep-and-mental-health
 * Mean, Median and Mode. (n.d.). Retrieved August 04, 2020, from https://www.tutorialspoint.com/r/r_mean_median_mode.htm
+* NAMI (Ed.). (n.d.). Veterans & Active Duty. Retrieved August 06, 2020, from https://www.nami.org/Your-Journey/Veterans-Active-Duty
 * United States of America, Centers for Disease Control and Prevention. (2014, August 15). Overview: BRFSS 2013. Retrieved July 30, 2020, from https://www.cdc.gov/brfss/annual_data/2013/pdf/Overview_2013.pdf
 * United States of America, Centers for Disease Control and Prevention. (2014, October 24). 2013 Codebook Report, Land-Line and Cell-Phone Data. Retrieved July 30, 2020, from https://www.cdc.gov/brfss/annual_data/2013/pdf/CODEBOOK13_LLCP.pdf

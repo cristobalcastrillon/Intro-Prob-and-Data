@@ -1,0 +1,220 @@
+---
+title: "Exploring the BRFSS data"
+output: 
+  html_document: 
+    fig_height: 4
+    highlight: pygments
+    theme: spacelab
+---
+## BRFSS 2013: Exploratory Data Analysis
+
+### Setup
+
+### Load packages
+
+These packages are used for the project:
+```{r load-packages, message = FALSE}
+library(ggplot2)
+library(dplyr)
+```
+
+### Load data
+
+```{r load-data}
+load("brfss2013.RData")
+```
+
+* * *
+
+## I. Data: BRFSS
+### Description
+
+The BRFSS is an ongoing surveillance system designed to measure behavioral risk factors for the non-institutionalized adult population (people aged 18 and older) in the United States. It is a collaborative project between all of the states in the US and participating US territories and the Centers for Disease Control and Prevention (CDC). 
+
+### Data collection
+
+The data collection for the BRFSS consists on monthly landline telephone and cellular telephone-based surveys, conducted by either state health departments themselves or by contractors. For this type of data collection method (telephone survey), a sample record is equivalent to one telephone number randomly selected for dialing: in 2013, fifty-one projects used a disproportionate stratified sample (DSS) design for their landline samples, while Guam and Puerto Rico used a simple random-sample design.
+
+The most commonly used DSS design in 2013's BRFSS landline telephone sampling, consisted on dividing telephone numbers in two groups (high-density and medium-density strata), which were then sampled separately. The criteria for determining whether a telephone number went into either of the groups, is the "number of listed household numbers in its hundred block, or set of 100 telephone numbers with the same area code, prefix, and first two digits of the suffix and all possible combinations of the last two digits." (Overview: BRFSS 2013, 2014)
+
+As for cellular telephone sampling, sampling frames are commercially available, and, by following specific protocols, can be used by the system. The 2013 BRFSS sampling frame is based on the Telecordia database of telephone exchanges and 1,000 banks, which are sorted by area code and exchange within a state. "BRFSS divides the frame of telephone numbers into n intervals of size K telephone numbers", and then, "from each interval draws one 10-digit telephone number at random". (Overview: BRFSS 2013, 2014)
+
+The sample design is built for a hypothetically single stratum per state. However, in order to provide adequate sample sizes for smaller geographically defined populations of interest, many states sample from sub-state regions strata in a disproportionarte fashion. This was the case for 48 states or territories in 2013's BRFSS. 
+
+After the data is collected, it is then transmitted to the CDC in order to be edited, processed, weighted, and analysed.
+
+### Generalizability and causality
+
+The previously mentioned data collection methods used for the BRFSS, pertain to the *observational study* category because phenomena of interest was observed without imposition of controlled conditions. Being such, the data is best **not** used for making **causal** conclusions on any pair of the variables included, but can be useful to show associations between them.
+
+The surveillance system results are widely **generalizable**, due to its data collection methodology and the fact that it is a nation-wide ongoing study.
+
+* * *
+
+## II. Research questions
+
+#### 1. How does the average sleep time a person gets in a daily basis relate to whether he or she have ever been told to have a depressive disorder?
+
+**Background:** Some studies suggest a close relationship between sleep disorders and mental health problems: sleep deprivation affects psychological well-being, and people who suffer from mental health problems are more likely to suffer from sleep disorders. (Harvard Health Publishing, 2019)
+
+#### 2. How does having ever been diagnosed with a depressive disorder relate to a person's recent mental health status?
+
+**Background:** We are interested in the prevalence of depressive disorders (or non-optimal psychological well-being) in the group of people that have been diagnosed at least once in their lives with any depressive disorder.
+
+#### 3. How does having ever served on active duty in the United States Armed Forces relate to the number of days a person’s mental health has not been good over the 30 days pre-interview?
+
+**Background:** We want to establish a relationship between the people that have served on active duty in the United States Armed Forces (i.e. veterans) and mental illness prevalence.  It has been documented that nearly 1 in 4 active duty members have shown signs of a mental health condition, including Postraumatic Stress Disorder (PTSD), Depression, and Traumatic Brain Injury (TBI). (NAMI)
+
+#### 4. How does having ever served on active duty in the United States Armed Forces relate to the average sleep hours a person gets in a 24-hour period?
+
+**Background:** There is evidence about the prevalence of sleep disorders (most commonly chronic insomnia and nightmares) in those who suffer from PTSD (Gehrman, 2015). We want to test out this existing relationship by establishing a correlation between veterans that have been diagnosed with a depressive disorder at least once in their lifetime and the number of sleep hours that they get in a 24-hour basis.
+
+* * *
+
+## III. Exploratory data analysis
+
+### 1. How does the average sleep time a person gets in a daily basis relate to whether he or she have ever been told to have a depressive disorder?
+
+To explore this question we should divide people into two groups: those who have ever been told to have a depressive disorder and those who have not. After that is done, we should evaluate the sleep time distribution of each of the groups. To further understand the difference (if there is any) between the sleep time of those who have ever been diagnosed and those who not, we superimpose both frequency distribution histograms.
+
+```{r}
+# Selecting the sleep time data based on whether person has been diagnosed with a depressive disorder 
+# or not, while clearing off the 'NA' values and the values that correspond to 
+# 'Don't know/Not Sure' and 'Refused' responses.
+sleptim1_of_addepev2 <- brfss2013 %>%
+  select(sleptim1, addepev2) %>%
+  filter(!is.na(sleptim1) & !is.na(addepev2) & sleptim1 <= 24 & (addepev2 == "Yes" | addepev2 == "No"))
+
+# Exploring the variables
+str(sleptim1_of_addepev2)
+```
+```{r}
+# Creating a dataframe for the frequency distribution of the average sleep time of the people who have  
+# ever been diagnosed with a depressive disorder, while clearing the outlier values that correspond to
+# 'Don't know/Not Sure' and 'Refused' responses.
+st_addepev2_yes <- sleptim1_of_addepev2 %>%
+  filter(addepev2 == "Yes") %>%
+  filter(sleptim1 <= 24) %>%
+  group_by(sleptim1) %>% 
+  summarise(count = n())
+
+summary(st_addepev2_yes$count)
+```
+```{r}
+# Creating a dataframe for the frequency distribution of the average sleep time of the people who have  
+# never been diagnosed with a depressive disorder, while clearing the outlier values that correspond to
+# 'Don't know/Not Sure' and 'Refused' responses.
+st_addepev2_no <- sleptim1_of_addepev2 %>%
+  filter(addepev2 == "No") %>%
+  filter(sleptim1 <= 24) %>%
+  group_by(sleptim1) %>% 
+  summarise(count = n())
+
+summary(st_addepev2_no$count)
+```
+```{r}
+# Graphs
+ggplot(sleptim1_of_addepev2, aes(x= sleptim1)) + 
+  geom_bar(aes(fill = sleptim1)) + 
+  facet_grid(rows = vars(addepev2), space = "free_y", scales = "free_y") + 
+  theme_bw() + labs(y = "Count", x = "Sleep Time [hours]")
+```
+```{r}
+ggplot(sleptim1_of_addepev2, aes(sleptim1, fill = addepev2)) + geom_bar(position = "dodge2") + 
+  theme_bw() + labs(y = "Count", x = "Sleep Time [hours]", fill = "Depressive Disorder")
+```
+
+* * *
+### 2. How does having ever been diagnosed with a depressive disorder relate to a person's recent mental health status?
+
+As we have previously done, we will use the data clustered in accordance to whether a person has ever been diagnosed with a depressive disorder or not, and, as well as we have already done, plot two histograms respective to each group: in this case, the horizontal axis for both graphs will consist on the number of days a respondant has been "not good" regarding their mental health (this includes stress, depression, and problems with emotions) and the y axis will represent the frequency count.
+
+```{r}
+# Selecting the recent health status data based on whether a person has been diagnosed  
+# with a depressive disorder or not, while clearing off the 'NA' values and the values that correspond to 
+# 'Don't know/Not Sure' and 'Refused' responses.
+menthlth_of_addepev2 <- brfss2013 %>%
+  select(menthlth, addepev2) %>%
+  filter(!is.na(menthlth) & !is.na(addepev2) & menthlth <= 30 & (addepev2 == "Yes" | addepev2 == "No"))
+
+# Exploring the variables
+str(menthlth_of_addepev2)
+```
+```{r}
+# Graphs
+ggplot(menthlth_of_addepev2, aes(x= menthlth)) + 
+  geom_bar(aes(fill = menthlth)) + 
+  facet_grid(rows = vars(addepev2), space = "free_y", scales = "free_y") + 
+  theme_bw() + labs(y = "Count", x = "# of days mental health has been 'not good'")
+```
+```{r}
+ggplot(menthlth_of_addepev2, aes(menthlth, fill = addepev2)) + geom_bar(position = "dodge2") + 
+  theme_bw() + labs(y = "Count", x = "# of days mental health has been 'not good'", fill = "Depressive Disorder")
+```
+
+* * *
+### 3. How does having ever served on active duty in the United States Armed Forces relate to the number of days a person’s mental health has not been good over the 30 days pre-interview?
+
+This question will be evaluated in the same fashion as the first two. First, after we have cleared the data removing the 'NA' values, we divide the responses into two groups: those who have served on active duty in the United States Armed Forces (in other words, those who said to be 'veterans') and those who have not. Then, we plot histograms for each of the groups, which will help us visualize the frequency distribution of the responses. Finally, we superimpose both graphs in order to see how they differ and test our hypothesis.
+
+```{r}
+# Selecting the recent health status data based on whether a person has served on 
+# active duty in the USAF or not, while clearing off the 'NA' values and the values that correspond to 
+# 'Don't know/Not Sure' and 'Refused' responses.
+menthlth_of_veteran3 <- brfss2013 %>%
+  select(menthlth, veteran3) %>%
+  filter(!is.na(menthlth) & !is.na(veteran3) & menthlth <= 30 & (veteran3 == "Yes" | veteran3 == "No"))
+
+# Exploring the variables
+str(menthlth_of_veteran3)
+```
+
+```{r}
+# Graphs
+ggplot(menthlth_of_veteran3, aes(x= menthlth)) + 
+  geom_bar(aes(fill = menthlth)) + 
+  facet_grid(rows = vars(veteran3), space = "free_y", scales = "free_y") + 
+  theme_bw() + labs(y = "Count", x = "# of days mental health has been 'not good'")
+```
+```{r}
+ggplot(menthlth_of_veteran3, aes(menthlth, fill = veteran3)) + geom_bar(position = "dodge2") + 
+  theme_bw() + labs(y = "Count", x = "# of days mental health has been 'not good'", fill = "Veteran")
+```
+
+* * *
+### 4. How does having ever served on active duty in the United States Armed Forces relate to the average sleep hours a person gets in a 24-hour period?
+
+```{r}
+# Selecting the sleep time data based on whether a person has served on 
+# active duty in the USAF or not, while clearing off the 'NA' values and the values that correspond to 
+# 'Don't know/Not Sure' and 'Refused' responses.
+sleptim1_of_veteran3 <- brfss2013 %>%
+  select(sleptim1, veteran3) %>%
+  filter(!is.na(sleptim1) & !is.na(veteran3) & sleptim1 <= 24 & (veteran3 == "Yes" | veteran3 == "No"))
+
+# Exploring the variables
+str(sleptim1_of_veteran3)
+```
+
+```{r}
+# Graphs
+ggplot(sleptim1_of_veteran3, aes(x= sleptim1)) + 
+  geom_bar(aes(fill = sleptim1)) + 
+  facet_grid(rows = vars(veteran3), space = "free_y", scales = "free_y") + 
+  theme_bw() + labs(y = "Count", x = "Sleep Time [hours]")
+```
+```{r}
+ggplot(sleptim1_of_veteran3, aes(sleptim1, fill = veteran3)) + geom_bar(position = "dodge2") + 
+  theme_bw() + labs(y = "Count", x = "Sleep Time [hours]", fill = "Veteran")
+```
+
+* * *
+## References
+
+* Diez, D., Barr, C., & Çetinkaya-Rundel, M. (2014). Introductory Statistics with Randomization and Simulation. Minneapolis, MN: Open Textbook Library.
+* Gehrman, P., PhD. (2015, July 20). VA.gov: Veterans Affairs. Retrieved August 06, 2020, from https://www.ptsd.va.gov/professional/treat/cooccurring/sleep_problems_vets.asp
+* Harvard Health Publishing (Ed.). (2019, July). Sleep and mental health. Retrieved August 06, 2020, from https://www.health.harvard.edu/newsletter_article/sleep-and-mental-health
+* Mean, Median and Mode. (n.d.). Retrieved August 04, 2020, from https://www.tutorialspoint.com/r/r_mean_median_mode.htm
+* NAMI (Ed.). (n.d.). Veterans & Active Duty. Retrieved August 06, 2020, from https://www.nami.org/Your-Journey/Veterans-Active-Duty
+* United States of America, Centers for Disease Control and Prevention. (2014, August 15). Overview: BRFSS 2013. Retrieved July 30, 2020, from https://www.cdc.gov/brfss/annual_data/2013/pdf/Overview_2013.pdf
+* United States of America, Centers for Disease Control and Prevention. (2014, October 24). 2013 Codebook Report, Land-Line and Cell-Phone Data. Retrieved July 30, 2020, from https://www.cdc.gov/brfss/annual_data/2013/pdf/CODEBOOK13_LLCP.pdf
