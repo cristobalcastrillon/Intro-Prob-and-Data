@@ -55,19 +55,19 @@ The surveillance system results are widely **generalizable**, due to its data co
 
 #### 1. How does the average sleep time a person gets in a daily basis relate to whether he or she have ever been told to have a depressive disorder?
 
-**Background:** Some studies suggest a close relationship between sleep disorders and mental health problems: sleep deprivation affects psychological well-being, and people who suffer from mental health problems are more likely to suffer from sleep disorders. (Harvard Health Publishing, 2019)
+**Background:** Some studies suggest a close relationship between sleep disorders and mental health problems. Sleep deprivation affects psychological well-being, and people who suffer from mental health problems are more likely to suffer from sleep disorders. (Harvard Health Publishing, 2019)
 
 #### 2. How does having ever been diagnosed with a depressive disorder relate to a person's recent mental health status?
 
 **Background:** We are interested in the prevalence of depressive disorders (or non-optimal psychological well-being) in the group of people that have been diagnosed at least once in their lives with any depressive disorder.
 
-#### 3. How does having ever served on active duty in the United States Armed Forces relate to the number of days a person’s mental health has not been good over the 30 days pre-interview?
+#### 3. How does having served on active duty in the United States Armed Forces relate to the number of days a person’s mental health has not been good over the 30 days pre-interview?
 
 **Background:** We want to establish a relationship between the people that have served on active duty in the United States Armed Forces (i.e. veterans) and mental illness prevalence.  It has been documented that nearly 1 in 4 active duty members have shown signs of a mental health condition, including Postraumatic Stress Disorder (PTSD), Depression, and Traumatic Brain Injury (TBI). (NAMI)
 
-#### 4. How does having ever served on active duty in the United States Armed Forces relate to the average sleep hours a person gets in a 24-hour period?
+#### 4. How does having served on active duty in the United States Armed Forces relate to the average sleep hours a person gets in a 24-hour period?
 
-**Background:** There is evidence about the prevalence of sleep disorders (most commonly chronic insomnia and nightmares) in those who suffer from PTSD (Gehrman, 2015). We want to test out this existing relationship by establishing a correlation between veterans that have been diagnosed with a depressive disorder at least once in their lifetime and the number of sleep hours that they get in a 24-hour basis.
+**Background:** There is evidence about the prevalence of sleep disorders (most commonly chronic insomnia and nightmares) in those who suffer from PTSD (Gehrman, 2015). Based on the assumption that veterans on this sample will be more likely to suffer from PTSD, we want to test out this existing relationship by establishing a correlation between veterans that have been diagnosed with a depressive disorder at least once in their lifetime and the number of sleep hours that they get in a 24-hour basis.
 
 * * *
 
@@ -75,7 +75,7 @@ The surveillance system results are widely **generalizable**, due to its data co
 
 ### 1. How does the average sleep time a person gets in a daily basis relate to whether he or she have ever been told to have a depressive disorder?
 
-To explore this question we should divide people into two groups: those who have ever been told to have a depressive disorder and those who have not. After that is done, we should evaluate the sleep time distribution of each of the groups. To further understand the difference (if there is any) between the sleep time of those who have ever been diagnosed and those who not, we superimpose both frequency distribution histograms.
+To explore this question we should divide people into two groups: those who have ever been told to have a depressive disorder and those who have not. After that is done, we should evaluate the sleep time distribution of each of the groups. To further understand the difference (if there is any) between the sleep time of those who have ever been diagnosed and those who have not, we overlay both frequency distribution histograms.
 
 ```{r}
 # Selecting the sleep time data based on whether person has been diagnosed with a depressive disorder 
@@ -127,7 +127,7 @@ ggplot(sleptim1_of_addepev2, aes(sleptim1, fill = addepev2)) + geom_bar(position
 * * *
 ### 2. How does having ever been diagnosed with a depressive disorder relate to a person's recent mental health status?
 
-As we have previously done, we will use the data clustered in accordance to whether a person has ever been diagnosed with a depressive disorder or not, and, as well as we have already done, plot two histograms respective to each group: in this case, the horizontal axis for both graphs will consist on the number of days a respondant has been "not good" regarding their mental health (this includes stress, depression, and problems with emotions) and the y axis will represent the frequency count.
+As we have previously done, we will use the data clustered in accordance to whether a person has ever been diagnosed with a depressive disorder or not, and, as well as we have already done, plot two histograms respective to each group: in this case, the horizontal axis for both graphs will consist on the number of days a respondant has been "not good" regarding their mental health (this includes stress, depression, and problems with emotions) and the vertical axis will represent the frequency count.
 
 ```{r}
 # Selecting the recent health status data based on whether a person has been diagnosed  
@@ -153,7 +153,7 @@ ggplot(menthlth_of_addepev2, aes(menthlth, fill = addepev2)) + geom_bar(position
 ```
 
 * * *
-### 3. How does having ever served on active duty in the United States Armed Forces relate to the number of days a person’s mental health has not been good over the 30 days pre-interview?
+### 3. How does having served on active duty in the United States Armed Forces relate to the number of days a person’s mental health has not been good over the 30 days pre-interview?
 
 This question will be evaluated in the same fashion as the first two. First, after we have cleared the data removing the 'NA' values, we divide the responses into two groups: those who have served on active duty in the United States Armed Forces (in other words, those who said to be 'veterans') and those who have not. Then, we plot histograms for each of the groups, which will help us visualize the frequency distribution of the responses. Finally, we superimpose both graphs in order to see how they differ and test our hypothesis.
 
@@ -182,7 +182,7 @@ ggplot(menthlth_of_veteran3, aes(menthlth, fill = veteran3)) + geom_bar(position
 ```
 
 * * *
-### 4. How does having ever served on active duty in the United States Armed Forces relate to the average sleep hours a person gets in a 24-hour period?
+### 4. How does having served on active duty in the United States Armed Forces relate to the average sleep hours a person gets in a 24-hour period?
 
 ```{r}
 # Selecting the sleep time data based on whether a person has served on 
